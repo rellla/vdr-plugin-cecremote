@@ -26,7 +26,7 @@ cCECOsd::cCECOsd(cPluginCecremote *plugin) :
                  cOsdMenu(tr("CEC Device")) {
 
   int cnt = 1;
-  char num[4];
+  char num[20];
   cCECMenu menuitem;
   string menutxt;
   cCECMenuList *menulist = plugin->GetMenuList();

@@ -54,7 +54,7 @@ protected:
         cCmd cmd(CEC_EXECTOGGLE, menu.mDevice, menu.mOnPowerOn, menu.mOnPowerOff);
         mCECRemote->PushWaitCmd(cmd);
     }
-
+    cString getStatus(void);
 public:
     cKeyMaps mKeyMaps;
 

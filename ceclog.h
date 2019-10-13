@@ -15,7 +15,7 @@
 
 namespace cecplugin {
 
-#define MAXSYSLOGBUF 256
+#define MAXSYSLOGBUF 1024
 
 static void ceclogmsg (int severity, const char *format, ...)
 {
@@ -30,7 +30,7 @@ static void ceclogmsg (int severity, const char *format, ...)
             facility_priority = LOG_DEBUG;
         }
 
-        snprintf(fmt, sizeof(fmt), "[cecremote] %s", format);
+        snprintf(fmt, sizeof(fmt)-1, "[cecremote] %s", format);
         va_list ap;
         va_start(ap, format);
         vsyslog(facility_priority ,fmt, ap);
@@ -43,7 +43,7 @@ static void ceclogmsg (int severity, const char *format, ...)
 #define Dsyslog(a...) ceclogmsg(2, a)
 
 #ifdef VERBOSEDEBUG
-#define Csyslog(a...) ceclogmsg(2, a)
+#define Csyslog(a...) ceclogmsg(0, a)
 #else
 #define Csyslog(a...)
 #endif

@@ -61,6 +61,7 @@ void cStatusMonitor::ChannelSwitch(const cDevice *Device, int ChannelNumber,
                 }
             }
         }
+        Csyslog("Channel switch OK");
     }
     else {
         Dsyslog("Not primary device, Channel Switch %d %c", ChannelNumber, l);

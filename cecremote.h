@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015-2016 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -48,6 +48,10 @@ public:
     void Reconnect(void);
     void Stop(void);
     void Startup(void);
+    int GetWorkQueueSize(void) {return mWorkerQueue.size();}
+    int GetExecQueueSize(void) {return mExecQueue.size();}
+    bool IsConnected(void) {return (mCECAdapter != NULL);}
+
     ICECAdapter            *mCECAdapter;
 private:
     static const char      *VDRNAME;

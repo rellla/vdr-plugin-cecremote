@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015-2016 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -236,6 +236,7 @@ const char **cPluginCecremote::SVDRPHelpPages(void)
             "CECK [id]\nDisplay CEC->VDR key map with id\n",
             "DISC\nDisconnect CEC",
             "CONN\nConnect CEC",
+            "STAT\nPlugin status",
             NULL
     };
     return HelpPages;
@@ -244,7 +245,10 @@ const char **cPluginCecremote::SVDRPHelpPages(void)
 cString cPluginCecremote::SVDRPCommand(const char *Command, const char *Option, int &ReplyCode)
 {
     ReplyCode = 214;
-    if (strcasecmp(Command, "LSTD") == 0) {
+    if (strcasecmp(Command, "STAT") == 0) {
+        return getStatus();
+    }
+    else if (strcasecmp(Command, "LSTD") == 0) {
         return mCECRemote->ListDevices();
     }
     else if (strcasecmp(Command, "KEYM") == 0) {
@@ -291,6 +295,25 @@ void cPluginCecremote::SetDefaultKeymaps()
 {
     mKeyMaps.SetActiveKeymaps(mConfigFileParser.mGlobalOptions.mVDRKeymap,
                               mConfigFileParser.mGlobalOptions.mCECKeymap);
+}
+
+cString cPluginCecremote::getStatus(void)
+{
+    cString s;
+    const char *buf;
+    if (mCECRemote->IsConnected()) {
+        buf = "Connected";
+    }
+    else {
+        buf = "Disconnected";
+    }
+    s = cString::sprintf("Log Level %d\nWork Queue %d\nExec Queue %d\nAdapter %s",
+            SysLogLevel,
+            mCECRemote->GetWorkQueueSize(),
+            mCECRemote->GetExecQueueSize(),
+            buf);
+
+    return s;
 }
 
 } // namespace cecplugin
