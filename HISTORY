@@ -110,6 +110,9 @@ VDR Plugin 'cecremote' Revision History
 - Add a udev rule to the contrib directory which disables ModemManger or
   mtp-probe access to the pulse-eight CEC adapter.
 
-2016-11-10: Version 1.4.1
+2019-10-20: Version 1.4.1
 
-- Compiles with libCEC 4
+- Compiles with libCEC 4.
+- Add startupdelay to global config.
+- Fix a missing close of the xml config file.
+- Bugfixes.

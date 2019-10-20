@@ -228,6 +228,8 @@ The child elements of <global> are <rtcdetect>, <cecdebug>, <onstart>,
                     VDR is shut down. Default is false.
 <poweroffonstandby> If set to true, all CEC devices are set to power off when
                     the VDR is shut down. Default is false.
+<startupdelay>      Wait number of seconds before initializing the cec adapter
+                    and execute the <onstart> or <onmanualstart> command lists.
 
 NOTE: There seems to be a bug in the libCEC implementation for the Raspberry PI
       which causes a crash when registering more than one device type.
