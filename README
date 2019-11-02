@@ -290,14 +290,25 @@ not be used with <onpoweron> and <onpoweroff>.
 
 The <player> tag must have the following attribute:
   * file : Filename of the still-picture in mpeg format.
-  
-The child elements of <player> are <stop>.and <keymaps> 
+
+The child elements of <player> are <stop> <onkey> and <keymaps> 
 
 <stop>    : Can be used several times and contains a VDR-Key to stop this player.
 <keymaps> : The <keymaps> tag has the attributes "cec" and "vdr" which
             addresses the id specified within <ceckeymap> or <vdrkeymap>.
             When the player is started, these keymaps are activated. If a tag is
             missing, the default keymap is used. 
+<onkey>   : The onkey tag must have the code attribute.
+            <onkey code="VDR KEY"> can be used to map a VDR key to a command 
+            list. This command list is executed whenever this player is active
+            and the respective key is pressed.
+
+            The following example will execute the script volume_up.sh if the
+            RED-button is pressed. 
+            <onkey code="RED">
+               <exec>volume_up.sh</exec>
+            </onkey>
+
 
 * Command lists
 ====================================

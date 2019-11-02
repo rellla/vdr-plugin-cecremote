@@ -119,6 +119,13 @@
 		<!--  <keymaps cec="default" vdr="default" /> -->
 			<stop>Back</stop>
 			<stop>Menu</stop>
+
+			<onkey code="RED">
+				<exec>volume_up.sh</exec>
+			</onkey>
+			<onkey code="GREEN">
+				<exec>volume_down.sh</exec>
+			</onkey>
 		</player>
 		<!--  When returning to VDR poweroff DVD Player and make VDR active -->
 		<onstop>

@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -78,6 +78,7 @@ public:
 };
 
 typedef std::map<std::string, cCECDevice> mCECDeviceMap;
+typedef std::map<eKeys, cCmdQueue> mCmdQueueKeyMap;
 
 // Class for storing information on <menu> tags.
 class cCECMenu {
@@ -96,6 +97,7 @@ public:
     cCmdQueue mOnStop;
     cCmdQueue mOnPowerOn;
     cCmdQueue mOnPowerOff;
+    mCmdQueueKeyMap mCmdQueueKey;
     std::string mCECKeymap;
     std::string mVDRKeymap;
 
@@ -137,6 +139,8 @@ public:
 // Configuration file parser
 class cConfigFileParser {
 private:
+    // Throw an error if subelements of a node exist
+    void checkSubElement(pugi::xml_node node);
     // Helper function to get the line number from the byte offset in the XML
     // error.
     int getLineNumber(long offset);
@@ -249,6 +253,8 @@ private:
     static const char *XML_INITIATOR;
     static const char *XML_RTCDETECT;
     static const char *XML_STARTUPDELAY;
+    static const char *XML_ONKEY;
+
     // Filename of the configuration file.
     const char* mXmlFile;
 

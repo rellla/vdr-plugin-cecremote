@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2014, 2015 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2014-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -52,10 +52,17 @@ eOSState cCECControl::ProcessKey(eKeys key)
         return osContinue;
     }
 
-    key = (eKeys)((int)key & ~k_Repeat);
-    cCmd cmd(CEC_VDRKEYPRESS, (int)key, &mMenuItem.mDevice);
-    mPlugin->PushCmd(cmd);
-
+    mCmdQueueKeyMap::iterator it = mMenuItem.mCmdQueueKey.find(key);
+    if (it != mMenuItem.mCmdQueueKey.end())
+    {
+        mPlugin->PushCmdQueue(it->second);
+    }
+    else
+    {
+        key = (eKeys)((int)key & ~k_Repeat);
+        cCmd cmd(CEC_VDRKEYPRESS, (int)key, &mMenuItem.mDevice);
+        mPlugin->PushCmd(cmd);
+    }
     return (osContinue);
 }
 

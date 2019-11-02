@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015-2016 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -68,6 +68,7 @@ const char *cConfigFileParser::XML_COMMAND = "command";
 const char *cConfigFileParser::XML_INITIATOR = "initiator";
 const char *cConfigFileParser::XML_RTCDETECT = "rtcdetect";
 const char *cConfigFileParser::XML_STARTUPDELAY = "startupdelay";
+const char *cConfigFileParser::XML_ONKEY = "onkey";
 /*
  * Parse <onceccommand>
  */
@@ -121,6 +122,14 @@ void cConfigFileParser::parseOnCecCommand(const xml_node node) {
             std::pair<cec_opcode, cCECCommandHandler>(h.mCecOpCode, h));
 }
 
+void cConfigFileParser::checkSubElement(xml_node node)
+{
+    if (hasElements(node)) {
+        string s = "Too much arguments for ";
+        s += node.name();
+        throw cCECConfigException(getLineNumber(node.offset_debug()), s);
+    }
+}
 /*
  * Parse <player file="">
  */
@@ -139,14 +148,10 @@ void cConfigFileParser::parsePlayer(const xml_node node, cCECMenu &menu)
 
         if (currentNode.type() == node_element)  // is element
         {
-            Dsyslog("          %s %s\n", currentNode.name(), currentNode.text().as_string());
-
-            if (hasElements(currentNode)) {
-                string s = "Too much arguments for ";
-                s += currentNode.name();
-                throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
-            }
+            Dsyslog("          %s %s\n", currentNode.name(),
+                    currentNode.text().as_string());
             if (strcasecmp(currentNode.name(), XML_STOP) == 0) {
+                checkSubElement(currentNode);
                 eKeys k = cKey::FromString(currentNode.text().as_string());
                 if (k == kNone) {
                     string s = "Invalid key ";
@@ -156,12 +161,30 @@ void cConfigFileParser::parsePlayer(const xml_node node, cCECMenu &menu)
                 menu.mStopKeys.insert(k);
             }
             else if (strcasecmp(currentNode.name(), XML_KEYMAPS) == 0) {
+                checkSubElement(currentNode);
                 menu.mVDRKeymap = currentNode.attribute(XML_VDR).
                                         as_string(cKeyMaps::DEFAULTKEYMAP);
                 menu.mCECKeymap = currentNode.attribute(XML_CEC).
                                                         as_string(cKeyMaps::DEFAULTKEYMAP);
                 Dsyslog("              Keymap VDR %s CEC %s",
                         menu.mVDRKeymap.c_str(), menu.mCECKeymap.c_str());
+            }
+            else if (strcasecmp(currentNode.name(), XML_ONKEY) == 0) {
+                cCmdQueue cmdlist;
+                string code = currentNode.attribute(XML_CODE).as_string("");
+                if (code.empty()) {
+                    string s = "Missing code in onkey";
+                    Esyslog(s.c_str());
+                    throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
+                }
+                eKeys k = cKey::FromString(code.c_str());
+                if (k == kNone) {
+                    string s = "Unknown VDR key code " + code;
+                    Esyslog(s.c_str());
+                    throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
+                }
+                parseList(currentNode, cmdlist);
+                menu.mCmdQueueKey.insert(std::pair<eKeys, cCmdQueue>(k, cmdlist));
             }
             else {
                 string s = "Invalid command ";
@@ -240,10 +263,9 @@ void cConfigFileParser::getDevice(const char *text, cCECDevice &device,
     }
 }
 /*
- * parse <onstart> and <onstop>
+ * parse command lists in <onstart>, <onstop> an <onkey>
  */
-void cConfigFileParser::parseList(const xml_node node,
-                                     cCmdQueue &cmdlist)
+void cConfigFileParser::parseList(const xml_node node, cCmdQueue &cmdlist)
 {
     cCmd cmd;
 
@@ -253,11 +275,7 @@ void cConfigFileParser::parseList(const xml_node node,
         if (currentNode.type() == node_element)  // is element
         {
             Dsyslog("     %s %s\n", node.name(), currentNode.name());
-            if (hasElements(currentNode)) {
-                string s = "Too much arguments for ";
-                s += currentNode.name();
-                throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
-            }
+            checkSubElement(currentNode);
             if (strcasecmp(currentNode.name(), XML_POWERON) == 0) {
                 cmd.mCmd = CEC_POWERON;
                 getDevice(currentNode.text().as_string(""), cmd.mDevice,
