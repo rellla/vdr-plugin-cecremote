@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015-2016 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -11,11 +11,13 @@
 
 #include "statusmonitor.h"
 #include "ceclog.h"
+#include "ceccontrol.h"
 
 namespace cecplugin {
 
 cStatusMonitor::cStatusMonitor(cPluginCecremote *plugin) : mMonitorStatus(UNKNOWN) {
     mPlugin = plugin;
+    mVolume = -1;
 }
 
 cStatusMonitor::~cStatusMonitor() {
@@ -23,7 +25,7 @@ cStatusMonitor::~cStatusMonitor() {
 }
 
 void cStatusMonitor::ChannelSwitch(const cDevice *Device, int ChannelNumber,
-                                      bool LiveView)
+                                   bool LiveView)
 {
     char l = 'f';
     if (LiveView) {
@@ -44,7 +46,7 @@ void cStatusMonitor::ChannelSwitch(const cDevice *Device, int ChannelNumber,
                     // Ignore first switch, this is covered by <onstart>
                     if (mMonitorStatus != UNKNOWN) {
                         mPlugin->PushCmdQueue(mPlugin->mConfigFileParser.
-                                                mGlobalOptions.mOnSwitchToRadio);
+                                              mGlobalOptions.mOnSwitchToRadio);
                     }
                     mMonitorStatus = RADIO;
                 }
@@ -55,7 +57,7 @@ void cStatusMonitor::ChannelSwitch(const cDevice *Device, int ChannelNumber,
                     // Ignore first switch, this is covered by <onstart>
                     if (mMonitorStatus != UNKNOWN) {
                         mPlugin->PushCmdQueue(mPlugin->mConfigFileParser.
-                                                mGlobalOptions.mOnSwitchToTV);
+                                              mGlobalOptions.mOnSwitchToTV);
                     }
                     mMonitorStatus = TV;
                 }
@@ -69,7 +71,7 @@ void cStatusMonitor::ChannelSwitch(const cDevice *Device, int ChannelNumber,
 }
 
 void cStatusMonitor::Replaying(const cControl *Control, const char *Name,
-                                  const char *FileName, bool On)
+                               const char *FileName, bool On)
 {
     Dsyslog("Replaying");
     if (On) {
@@ -78,6 +80,45 @@ void cStatusMonitor::Replaying(const cControl *Control, const char *Name,
             mPlugin->PushCmdQueue(mPlugin->mConfigFileParser.mGlobalOptions.mOnSwitchToReplay);
         }
     }
+}
+
+void cStatusMonitor::SetVolume(int Volume, bool Absolute)
+{
+    cCECMenu menuitem;
+    int newvol = 128;
+    Dsyslog("SetVolume %d %d", Volume, Absolute);
+    if (mVolume > 0) {
+        newvol = mVolume;
+    }
+    if (!Absolute) {
+        newvol += Volume;
+    }
+    else {
+        newvol = Volume;
+    }
+    // Always ignore first call.
+    if (mVolume == -1) {
+        mVolume = newvol;
+        return;
+    }
+
+    cControl *c = cControl::Control();
+    if (c == NULL) {
+        return;
+    }
+    cCECControl *cont = dynamic_cast<cCECControl*>(c);
+    if (cont == NULL) {
+        return;
+    }
+    Dsyslog("Stillpic Player running %s", cont->getMenuTitle().c_str());
+    menuitem = cont->getConfig();
+    if (newvol > mVolume) {
+        mPlugin->PushCmdQueue(menuitem.mOnVolumeUp);
+    }
+    else {
+        mPlugin->PushCmdQueue(menuitem.mOnVolumeDown);
+    }
+    mVolume = newvol;
 }
 
 } // namespace cecplugin

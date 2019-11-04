@@ -146,7 +146,7 @@ This element is used within <key> to assign key codes to the key map.
 
 If the <value> element is used in <vdrkeymap> the <value> element contains
 a CEC key name (see svdrpsend plug cecremote LSTK for the name of the
-supported CEC key codes). When used in <ceckeymap> the <value> element is the 
+supported CEC key codes). When used in <ceckeymap> the <value> element is the
 vdr key name as used for example in keymacros.conf.
 
 The following example create a new key map with id "TV" where the VDR key OK
@@ -178,7 +178,7 @@ The device element contains definitions for CEC devices. The main purpose is
 to specify a CEC device by the physical address, e.g. when more than one
 recording device may be available.
 
-The following configuration would create an entry for a blueray player. 
+The following configuration would create an entry for a blueray player.
 <device id="blueray">
    <physical>2000</physical>
    <logical>8</logical>
@@ -208,10 +208,10 @@ The child elements of <global> are <rtcdetect>, <cecdebug>, <onstart>,
 <onswitchtotv>      A command list which is executed if switched to a TV program.
 <onswitchtoradio>   A command list which is executed if switched to a radio program.
 <onswitchtoreplay>  A command list which is executed if the VDR replays a recording.
-<keymaps>           The <keymaps> tag has the attribute cec, which addresses the 
-                    id specified within a <ceckeymap>. This keymap is used to 
+<keymaps>           The <keymaps> tag has the attribute cec, which addresses the
+                    id specified within a <ceckeymap>. This keymap is used to
                     convert a CEC-Keycode to a VDR-Key.
-<cecdevicetype>     The device types to register with libCEC. The following 
+<cecdevicetype>     The device types to register with libCEC. The following
                     device types are available:
                     * RECORDING_DEVICE
                     * TUNER
@@ -246,7 +246,7 @@ The <menu> tag must have the following attributes:
   * address : CEC device address.
   
 The child elements of <menu> are <onstart>, <onstop>, <player>,
-<onpoweron>, <onpoweroff>. <onstart>, <onstop> and <onpoweron>, <onpoweroff> 
+<onpoweron>, <onpoweroff>. <onstart>, <onstop> and <onpoweron>, <onpoweroff>
 are mutually exclusive.
 
 <player>    : (see below).
@@ -254,25 +254,25 @@ are mutually exclusive.
 <onstart>   : A command list which is executed when the menu entry is selected.
 <onstop>    : A command list which is executed if <stillpic> is present and 
               the player is stopped.
-<onpoweron> : A command list which is executed if the device is currently 
+<onpoweron> : A command list which is executed if the device is currently
               powered off.
-<onpoweroff>: A command list which is executed if the device is currently 
+<onpoweroff>: A command list which is executed if the device is currently
               powered on.
 
 * OnCECCommand
 ====================================
 
-Perform actions when a cec command is received. 
+Perform actions when a cec command is received.
 
 The <onceccommand> must have the following attributes:
   * command :   A CEC opcode as string as defined in cectypes.h, but without the
-                CEC_OPCODE_ prefix. The opcode can also be defined as a numeric or
-                hex value. The following examples are valid defines for
+                CEC_OPCODE_ prefix. The opcode can also be defined as a numeric
+                or hex value. The following examples are valid defines for
                 CEC_OPCODE_STANDBY:
-              
+
                 command="STANDBY", command="0x36", command="54"
   * initiator : The device which initiated this command.
-  
+
 The child elements of <onceccommand> are <stopmenu>, <execmenu> and
 <commandlist>.
 
@@ -285,20 +285,21 @@ The child elements of <onceccommand> are <stopmenu>, <execmenu> and
 
 * Player 
 ====================================
-Starts a stillpic player and waits until the player is stopped. This tag can 
+Starts a stillpic player and waits until the player is stopped. This tag can
 not be used with <onpoweron> and <onpoweroff>.
 
 The <player> tag must have the following attribute:
   * file : Filename of the still-picture in mpeg format.
 
-The child elements of <player> are <stop> <onkey> and <keymaps> 
+The child elements of <player> are <stop> <onkey> <volumeup> <volumedown>
+and <keymaps> 
 
 <stop>    : Can be used several times and contains a VDR-Key to stop this player.
 <keymaps> : The <keymaps> tag has the attributes "cec" and "vdr" which
             addresses the id specified within <ceckeymap> or <vdrkeymap>.
             When the player is started, these keymaps are activated. If a tag is
-            missing, the default keymap is used. 
-<onkey>   : The onkey tag must have the code attribute.
+            missing, the default keymap is used.
+<onkey>   : The onkey tag must have set the code attribute.
             <onkey code="VDR KEY"> can be used to map a VDR key to a command 
             list. This command list is executed whenever this player is active
             and the respective key is pressed.
@@ -308,7 +309,13 @@ The child elements of <player> are <stop> <onkey> and <keymaps>
             <onkey code="RED">
                <exec>volume_up.sh</exec>
             </onkey>
+<volumeup>: The volumeup tag allows to specify a command list which is executed
+            whenever the volume increases.
+<volumedown>: The volumedown tag allows to specify a command list which is
+              executed whenever the volume decreases.
 
+Note: The volume is still routed to the primary device when <volumeup> or
+      <volumedown> is used.
 
 * Command lists
 ====================================

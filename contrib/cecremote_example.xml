@@ -126,6 +126,12 @@
 			<onkey code="GREEN">
 				<exec>volume_down.sh</exec>
 			</onkey>
+			<onvolumeup>
+				<exec>volume_up.sh</exec>
+			</onvolumeup>
+			<onvolumedown>
+				<exec>volume_down.sh</exec>
+			</onvolumedown>
 		</player>
 		<!--  When returning to VDR poweroff DVD Player and make VDR active -->
 		<onstop>

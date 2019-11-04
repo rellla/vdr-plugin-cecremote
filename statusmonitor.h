@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015-2016 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -35,7 +35,7 @@ protected:
     virtual void Recording(const cDevice *Device, const char *Name, const char *FileName, bool On) {};
     virtual void Replaying(const cControl *Control, const char *Name,
                            const char *FileName, bool On);
-    virtual void SetVolume(int Volume, bool Absolute) {};
+    virtual void SetVolume(int Volume, bool Absolute);
     virtual void SetAudioTrack(int Index, const char * const *Tracks) {};
     virtual void SetAudioChannel(int AudioChannel) {};
     virtual void SetSubtitleTrack(int Index, const char * const *Tracks) {};
@@ -54,6 +54,7 @@ protected:
 
     MonitorStatus mMonitorStatus;
     cPluginCecremote *mPlugin;
+    int mVolume;
 public:
     cStatusMonitor(cPluginCecremote *plugin);
     virtual ~cStatusMonitor();

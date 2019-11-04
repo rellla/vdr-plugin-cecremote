@@ -98,6 +98,8 @@ public:
     cCmdQueue mOnPowerOn;
     cCmdQueue mOnPowerOff;
     mCmdQueueKeyMap mCmdQueueKey;
+    cCmdQueue mOnVolumeUp;
+    cCmdQueue mOnVolumeDown;
     std::string mCECKeymap;
     std::string mVDRKeymap;
 
@@ -254,6 +256,8 @@ private:
     static const char *XML_RTCDETECT;
     static const char *XML_STARTUPDELAY;
     static const char *XML_ONKEY;
+    static const char *XML_ONVOLUMEUP;
+    static const char *XML_ONVOLUMEDOWN;
 
     // Filename of the configuration file.
     const char* mXmlFile;

@@ -18,9 +18,9 @@ using namespace cecplugin;
 namespace cecplugin {
 
 cStillPicPlayer::cStillPicPlayer(const cCECMenu &config) :
-                pStillBuf(NULL), mStillBufLen(0)
+                pStillBuf(NULL), mStillBufLen(0), mConfig(config)
 {
-    mStillPic = config.mStillPic;
+
 }
 
 cStillPicPlayer::~cStillPicPlayer() {
@@ -95,7 +95,7 @@ void cStillPicPlayer::LoadStillPicture (const string &FileName)
 
 void cStillPicPlayer::Activate(bool On) {
     if (On) {
-        LoadStillPicture(mStillPic);
+        LoadStillPicture(mConfig.mStillPic);
     }
 }
 

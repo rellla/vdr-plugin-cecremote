@@ -1,7 +1,7 @@
 /*
  * CECRemote PlugIn for VDR
  *
- * Copyright (C) 2015 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
+ * Copyright (C) 2015-2019 Ulrich Eckhardt <uli-vdr@uli-eckhardt.de>
  *
  * This code is distributed under the terms and conditions of the
  * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
@@ -29,13 +29,14 @@ protected:
     void LoadStillPicture (const std::string &filename);
     void DisplayStillPicture (void);
 
-    std::string mStillPic;
     cMutex mPlayerMutex;
     uchar *pStillBuf;
     ssize_t mStillBufLen;
+    cCECMenu mConfig;
 public:
     cStillPicPlayer(const cCECMenu &config);
     virtual ~cStillPicPlayer();
+    const cCECMenu getConfig(void) {return mConfig;};
 };
 
 } // namespace cecplugin

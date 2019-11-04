@@ -116,3 +116,10 @@ VDR Plugin 'cecremote' Revision History
 - Add startupdelay to global config.
 - Fix a missing close of the xml config file.
 - Bugfixes.
+
+2019-11-04: Version 1.5.0
+
+- Add <onkey> <volumeup> <volumedown> config options the <player> section.
+  These options allows to specify command lists for key presses und volume
+  up/down events for a still picture player.
+

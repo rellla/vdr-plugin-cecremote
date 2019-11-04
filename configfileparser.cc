@@ -69,6 +69,8 @@ const char *cConfigFileParser::XML_INITIATOR = "initiator";
 const char *cConfigFileParser::XML_RTCDETECT = "rtcdetect";
 const char *cConfigFileParser::XML_STARTUPDELAY = "startupdelay";
 const char *cConfigFileParser::XML_ONKEY = "onkey";
+const char *cConfigFileParser::XML_ONVOLUMEUP = "onvolumeup";
+const char *cConfigFileParser::XML_ONVOLUMEDOWN = "onvolumedown";
 /*
  * Parse <onceccommand>
  */
@@ -185,6 +187,12 @@ void cConfigFileParser::parsePlayer(const xml_node node, cCECMenu &menu)
                 }
                 parseList(currentNode, cmdlist);
                 menu.mCmdQueueKey.insert(std::pair<eKeys, cCmdQueue>(k, cmdlist));
+            }
+            else if (strcasecmp(currentNode.name(), XML_ONVOLUMEUP) == 0) {
+                parseList(currentNode, menu.mOnVolumeUp);
+            }
+            else if (strcasecmp(currentNode.name(), XML_ONVOLUMEDOWN) == 0) {
+                parseList(currentNode, menu.mOnVolumeDown);
             }
             else {
                 string s = "Invalid command ";
