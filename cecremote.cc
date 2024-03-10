@@ -13,6 +13,7 @@
 #include "ceclog.h"
 #include "cecremoteplugin.h"
 #include <sys/wait.h>
+#include <linux/close_range.h>
 // We need this for cecloader.h
 #include <iostream>
 #include <csignal>
@@ -485,7 +486,7 @@ void cCECRemote::Connect()
 #endif
     // Setup CEC configuration
     mCECConfig.Clear();
-    strncpy(mCECConfig.strDeviceName, VDRNAME, sizeof(mCECConfig.strDeviceName));
+    strncpy(mCECConfig.strDeviceName, VDRNAME, sizeof(mCECConfig.strDeviceName)-1);
 
     // LibCEC before 3.0.0
 #ifdef CEC_CLIENT_VERSION_CURRENT
@@ -784,19 +785,25 @@ void cCECRemote::Exec(cCmd &execcmd)
 {
     cCmd cmd;
     Dsyslog("Execute script %s", execcmd.mExec.c_str());
-    mInExec = true;
+
     pid_t pid = fork();
     if (pid < 0) {
         Esyslog("fork failed");
-        mInExec = false;
         return;
     }
     else if (pid == 0) {
+    	pid = setsid();
+    	if (pid < 0) {
+    		Esyslog("Sid failed");
+    		abort();
+    	}
+    	close_range(4, UINT_MAX, CLOSE_RANGE_UNSHARE);
         execl("/bin/sh", "sh", "-c", execcmd.mExec.c_str(), NULL);
         Esyslog("Exec failed");
         abort();
     }
 
+    mInExec = true;
     do {
         cmd = WaitExec(pid);
         Dsyslog ("(%d) ExecAction %d Val %d",
