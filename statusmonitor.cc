@@ -102,7 +102,8 @@ void cStatusMonitor::SetVolume(int Volume, bool Absolute)
         return;
     }
 
-    cControl *c = cControl::Control();
+    cMutexLock lock;
+    cControl *c = cControl::Control(lock);
     if (c == NULL) {
         return;
     }

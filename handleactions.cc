@@ -129,7 +129,8 @@ void cCECRemote::CECCommand(const cCmd &cmd) {
             // First stop the defined player if running
             if (!handler.mStopMenu.empty()) {
                 // Get current running control
-                cControl *c = cControl::Control();
+            	cMutexLock lock;
+                cControl *c = cControl::Control(lock);
                 if (c != NULL) {
                     if (cCECControl* cont = dynamic_cast<cCECControl*>(c)) {
                         Dsyslog("Stillpic Player running %s %s",
