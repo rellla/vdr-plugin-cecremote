@@ -123,3 +123,7 @@ VDR Plugin 'cecremote' Revision History
   These options allows to specify command lists for key presses und volume
   up/down events for a still picture player.
 
+2024-09-12: Version 1.5.1
+
+- Fix compile problems for VDR 2.7.1
+- Close all file descriptors before exec.
