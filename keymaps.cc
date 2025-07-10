@@ -23,6 +23,7 @@ cKeyMaps::cKeyMaps() {
     for (int i = 0; i <= CEC_USER_CONTROL_CODE_MAX; i++) {
         mDefaultKeyMap[i][0] = kNone;
         mDefaultKeyMap[i][1] = kNone;
+        mDefaultKeyMap[i][2] = kNone;
     }
 
     mDefaultKeyMap[CEC_USER_CONTROL_CODE_SELECT             ][0] = kOk;
@@ -164,7 +165,8 @@ cKeyMaps::cKeyMaps() {
     Dsyslog("Load keymap");
     InitCECKeyFromDefault(DEFAULTKEYMAP);
     InitVDRKeyFromDefault(DEFAULTKEYMAP);
-    SetActiveKeymaps(DEFAULTKEYMAP, DEFAULTKEYMAP);
+    InitGLOBALKeyFromDefault(DEFAULTKEYMAP);
+    SetActiveKeymaps(DEFAULTKEYMAP, DEFAULTKEYMAP, DEFAULTKEYMAP);
 }
 
 /*
@@ -180,6 +182,11 @@ cString cKeyMaps::ListKeymaps()
     s = cString::sprintf("%s\nKeymaps VDR->CEC", *s);
     for (map<string, cKeyMap>::iterator i = mCECKeyMap.begin();
          i != mCECKeyMap.end(); ++i) {
+        s = cString::sprintf("%s\n  %s", *s, i->first.c_str());
+    }
+    s = cString::sprintf("%s\nKeymaps Global VDR->CEC", *s);
+    for (map<string, cVDRKeyMap>::iterator i = mGLOBALKeyMap.begin();
+         i != mGLOBALKeyMap.end(); ++i) {
         s = cString::sprintf("%s\n  %s", *s, i->first.c_str());
     }
     return s;
@@ -237,6 +244,32 @@ cString cKeyMaps::ListVDRKeyMap(const string &id)
     s = cString::sprintf("%s %s", *s, id.c_str());
     try {
         m = mVDRKeyMap.at(id);
+    }
+    catch (const std::out_of_range& oor) {
+        s = cString::sprintf("%s\n   Keymap not found", *s);
+        return s;
+    }
+    for (int i = 0; i < kNone; i++) {
+        s = cString::sprintf("%s\n<key code=\"%s\">", *s, cKey::ToString((eKeys)i));
+        cCECList  l = m.at((eKeys)i);
+        for (cCECListIterator it = l.begin(); it != l.end(); it++) {
+            s = cString::sprintf("%s\n  <value>%s</value>", *s, mCECKeyNames[*it]);
+        }
+        s = cString::sprintf("%s\n</key>", *s);
+    }
+    return s;
+}
+
+/*
+ * List Global VDR Keymap. Output is suitable for using with SVDRP
+ */
+cString cKeyMaps::ListGLOBALKeyMap(const string &id)
+{
+    cVDRKeyMap m;
+    cString s = "GLOBAL KEYMAP ";
+    s = cString::sprintf("%s %s", *s, id.c_str());
+    try {
+        m = mGLOBALKeyMap.at(id);
     }
     catch (const std::out_of_range& oor) {
         s = cString::sprintf("%s\n   Keymap not found", *s);
@@ -369,11 +402,41 @@ void cKeyMaps::AddVDRKey(string id, eKeys k, cec_user_control_code c)
     mVDRKeyMap.at(id).at(k).push_back(c);
 }
 
+/*
+ * Initialize the default VDR Keymap.
+ */
+void cKeyMaps::InitGLOBALKeyFromDefault(string id)
+{
+    cVDRKeyMap map;
+    cec_user_control_code ceckey;
+    map.resize(kNone);
+    for (int i = 0; i < kNone; i++) {
+        map[i].clear();
+        ceckey = getFirstCEC((eKeys)i);
+        if (ceckey != CEC_USER_CONTROL_CODE_UNKNOWN) {
+            map[i].push_back(ceckey);
+        }
+    }
+    mGLOBALKeyMap.insert(std::pair<string, cVDRKeyMap>(id, map));
+}
+
+void cKeyMaps::ClearGLOBALKey(string id, eKeys k)
+{
+    mGLOBALKeyMap.at(id).at(k).clear();
+}
+
+void cKeyMaps::AddGLOBALKey(string id, eKeys k, cec_user_control_code c)
+{
+    mGLOBALKeyMap.at(id).at(k).push_back(c);
+}
+
 void cKeyMaps::SetActiveKeymaps(const string &vdrkeymapid,
-                                   const string &ceckeymapid)
+                                   const string &ceckeymapid,
+                                   const string &globalkeymapid)
 {
     mActiveVdrKeyMap = mVDRKeyMap.at(vdrkeymapid);
     mActiveCecKeyMap = mCECKeyMap.at(ceckeymapid);
+    mActiveGlobalKeyMap = mGLOBALKeyMap.at(globalkeymapid);
 }
 
 } // namespace cecplugin
