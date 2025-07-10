@@ -52,6 +52,7 @@ public:
     int mHDMIPort;
     int mStartupDelay;
     cec_logical_address mBaseDevice;
+    cCECDevice mAudioDevice;
     cCmdQueue mOnStart;
     cCmdQueue mOnStop;
     cCmdQueue mOnManualStart;
@@ -258,6 +259,7 @@ private:
     static const char *XML_ONKEY;
     static const char *XML_ONVOLUMEUP;
     static const char *XML_ONVOLUMEDOWN;
+    static const char *XML_AUDIODEVICE;
 
     // Filename of the configuration file.
     const char* mXmlFile;
