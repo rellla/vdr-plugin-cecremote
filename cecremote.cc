@@ -471,40 +471,21 @@ void cCECRemote::Connect()
     }
     // Initialize Callbacks
     mCECCallbacks.Clear();
-#if CEC_LIB_VERSION_MAJOR >= 4
     mCECCallbacks.logMessage  = &::CecLogMessageCallback;
     mCECCallbacks.keyPress    = &::CecKeyPressCallback;
     mCECCallbacks.commandReceived     = &::CecCommandCallback;
     mCECCallbacks.alert       = &::CecAlertCallback;
     mCECCallbacks.sourceActivated = &::CECSourceActivatedCallback;
     mCECCallbacks.configurationChanged = &::CECConfigurationCallback;
-#else
-    mCECCallbacks.CBCecLogMessage  = &::CecLogMessageCallback;
-    mCECCallbacks.CBCecKeyPress    = &::CecKeyPressCallback;
-    mCECCallbacks.CBCecCommand     = &::CecCommandCallback;
-    mCECCallbacks.CBCecAlert       = &::CecAlertCallback;
-    mCECCallbacks.CBCecSourceActivated = &::CECSourceActivatedCallback;
-    mCECCallbacks.CBCecConfigurationChanged = &::CECConfigurationCallback;
-#endif
     // Setup CEC configuration
     mCECConfig.Clear();
     strncpy(mCECConfig.strDeviceName, VDRNAME, sizeof(mCECConfig.strDeviceName)-1);
-
-    // LibCEC before 3.0.0
-#ifdef CEC_CLIENT_VERSION_CURRENT
-    mCECConfig.clientVersion      = CEC_CLIENT_VERSION_CURRENT;
-#else
-    // LibCEC 3.0.0
     mCECConfig.clientVersion      = LIBCEC_VERSION_CURRENT;
-#endif
     mCECConfig.bActivateSource    = CEC_FALSE;
     mCECConfig.iComboKeyTimeoutMs = mComboKeyTimeoutMs;
     mCECConfig.iHDMIPort = mHDMIPort;
     mCECConfig.wakeDevices.Clear();
     mCECConfig.powerOffDevices.Clear();
-#if CEC_LIB_VERSION_MAJOR < 4
-    mCECConfig.bShutdownOnStandby = mShutdownOnStandby;
-#endif
     mCECConfig.bPowerOffOnStandby = mPowerOffOnStandby;
     mCECConfig.baseDevice = mBaseDevice;
     // If no <cecdevicetype> is specified in the <global>, set default
@@ -537,7 +518,7 @@ void cCECRemote::Connect()
     Dsyslog("LibCEC %s", mCECAdapter->GetLibInfo());
 
     mDevicesFound = mCECAdapter->DetectAdapters(mCECAdapterDescription,
-                                                MAX_CEC_ADAPTERS, NULL, true);
+                                                MAX_CEC_ADAPTERS, nullptr, true);
     if (mDevicesFound <= 0)
     {
         Esyslog("No adapter found");
@@ -549,10 +530,9 @@ void cCECRemote::Connect()
 
     for (int i = 0; i < mDevicesFound; i++)
     {
-        Dsyslog("Device %d path: %s port: %s Firmware %04d", i,
+        Dsyslog("Device %d path: %s port: %s", i,
                 mCECAdapterDescription[i].strComPath,
-                mCECAdapterDescription[i].strComName,
-                mCECAdapterDescription[i].iFirmwareVersion);
+                mCECAdapterDescription[i].strComName);
     }
 
     if (!mCECAdapter->Open(mCECAdapterDescription[0].strComName, 5000))
@@ -576,18 +556,10 @@ void cCECRemote::Connect()
             uint16_t phaddr = mCECAdapter->GetDevicePhysicalAddress(logical_addres);
 
             cec_vendor_id vendor = (cec_vendor_id)mCECAdapter->GetDeviceVendorId(logical_addres);
-#if CEC_LIB_VERSION_MAJOR >= 4
             string name = mCECAdapter->GetDeviceOSDName(logical_addres);
             Dsyslog("   %15.15s %d@%04x %15.15s %15.15s",
                     mCECAdapter->ToString(logical_addres), logical_addres,
                     phaddr, name.c_str(), mCECAdapter->ToString(vendor));
-#else
-            cec_osd_name name = mCECAdapter->GetDeviceOSDName(logical_addres);
-            Dsyslog("   %15.15s %d@%04x %15.15s %15.15s",
-                    mCECAdapter->ToString(logical_addres),
-                    logical_addres, phaddr, name.name,
-                    mCECAdapter->ToString(vendor));
-#endif
         }
     }
     Csyslog("END cCECRemote::Initialize");
@@ -664,12 +636,7 @@ cString cCECRemote::ListDevices()
             cec_logical_address logical_addres = (cec_logical_address)j;
 
             phaddr = mCECAdapter->GetDevicePhysicalAddress(logical_addres);
-#if CEC_LIB_VERSION_MAJOR >= 4
             name = mCECAdapter->GetDeviceOSDName(logical_addres);
-#else
-            cec_osd_name oldname = mCECAdapter->GetDeviceOSDName(logical_addres);
-            name = oldname.name;
-#endif
             vendor = (cec_vendor_id)mCECAdapter->GetDeviceVendorId(logical_addres);
 
             if (own[j]) {
@@ -685,11 +652,7 @@ cString cCECRemote::ListDevices()
                         logical_addres,
                         mCECAdapter->ToString(logical_addres),
                         phaddr, name.c_str(),
-#if CEC_LIB_VERSION_MAJOR >= 4
                         mCECAdapter->GetDeviceOSDName(logical_addres).c_str(),
-#else
-                        mCECAdapter->GetDeviceOSDName(logical_addres).name,
-#endif
                         mCECAdapter->ToString(vendor),
                         mCECAdapter->ToString(powerstatus));
             }
