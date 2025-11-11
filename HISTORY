@@ -128,7 +128,10 @@ VDR Plugin 'cecremote' Revision History
 - Fix compile problems for VDR 2.7.1
 - Close all file descriptors before exec.
 
-2025-07-26: Version
+2025-11-11: Version 1.5.2
 
 - Patch to forward the keys kVolUp and kVolDn to a given device in global context.
   Thanks to rell.
+- Fix use of an unitialized value.
+  Thansk to Fabian Wolter 
+- Drop support for libcec prior to 4.0.0
