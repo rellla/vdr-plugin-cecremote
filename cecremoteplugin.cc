@@ -23,7 +23,7 @@
 
 namespace cecplugin {
 
-static const char *VERSION        = "1.5.2";
+static const char *VERSION        = "1.5.3";
 static const char *DESCRIPTION    = "Send/Receive CEC commands";
 static const char *MAINMENUENTRY  = "CECremote";
 

@@ -135,3 +135,7 @@ VDR Plugin 'cecremote' Revision History
 - Fix use of an unitialized value.
   Thansk to Fabian Wolter 
 - Drop support for libcec prior to 4.0.0
+
+2025-15-11: Version 1.5.3
+
+- Only new Tag due to incorrect version for tag 1.5.2
