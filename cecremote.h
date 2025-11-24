@@ -100,6 +100,8 @@ private:
 
     cCmdQueue mOnStart;
     cCmdQueue mOnStop;
+    cCmdQueue mOnVolumeUp;
+    cCmdQueue mOnVolumeDown;
     cCmdQueue mOnManualStart;
 };
 

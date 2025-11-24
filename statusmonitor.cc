@@ -102,13 +102,29 @@ void cStatusMonitor::SetVolume(int Volume, bool Absolute)
         return;
     }
 
+    // No volume change, return
+    if (newvol == mVolume)
+        return;
+
+    // Handle global volume keypresses
+    if (newvol > mVolume) {
+        cCmd cmd(CEC_VDRKEYPRESS, (int)kVolUp, &mPlugin->mConfigFileParser.mGlobalOptions.mAudioDevice);
+        mPlugin->PushCmd(cmd);
+    }
+    else {
+        cCmd cmd(CEC_VDRKEYPRESS, (int)kVolDn, &mPlugin->mConfigFileParser.mGlobalOptions.mAudioDevice);
+        mPlugin->PushCmd(cmd);
+    }
+
     cMutexLock lock;
     cControl *c = cControl::Control(lock);
     if (c == NULL) {
+        mVolume = newvol;
         return;
     }
     cCECControl *cont = dynamic_cast<cCECControl*>(c);
     if (cont == NULL) {
+        mVolume = newvol;
         return;
     }
     Dsyslog("Stillpic Player running %s", cont->getMenuTitle().c_str());

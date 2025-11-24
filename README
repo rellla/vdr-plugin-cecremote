@@ -230,6 +230,8 @@ The child elements of <global> are <rtcdetect>, <cecdebug>, <onstart>,
                     the VDR is shut down. Default is false.
 <startupdelay>      Wait number of seconds before initializing the cec adapter
                     and execute the <onstart> or <onmanualstart> command lists.
+<audiodevice>       If set, VDR keys kVolUp and kVolDn are forwarded to the
+                    given device in global context.
 
 NOTE: There seems to be a bug in the libCEC implementation for the Raspberry PI
       which causes a crash when registering more than one device type.

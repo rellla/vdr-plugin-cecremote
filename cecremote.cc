@@ -431,6 +431,8 @@ cCECRemote::cCECRemote(const cCECGlobalOptions &options, cPluginCecremote *plugi
     mCECLogLevel = options.cec_debug;
     mOnStart = options.mOnStart;
     mOnStop = options.mOnStop;
+    mOnVolumeUp = options.mOnVolumeUp;
+    mOnVolumeDown = options.mOnVolumeDown;
     mOnManualStart = options.mOnManualStart;
     mComboKeyTimeoutMs = options.mComboKeyTimeoutMs;
     mDeviceTypes = options.mDeviceTypes;

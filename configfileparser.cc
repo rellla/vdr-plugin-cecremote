@@ -71,6 +71,7 @@ const char *cConfigFileParser::XML_STARTUPDELAY = "startupdelay";
 const char *cConfigFileParser::XML_ONKEY = "onkey";
 const char *cConfigFileParser::XML_ONVOLUMEUP = "onvolumeup";
 const char *cConfigFileParser::XML_ONVOLUMEDOWN = "onvolumedown";
+const char *cConfigFileParser::XML_AUDIODEVICE = "audiodevice";
 /*
  * Parse <onceccommand>
  */
@@ -499,6 +500,14 @@ void cConfigFileParser::parseGlobal(const pugi::xml_node node)
             else if (strcasecmp(currentNode.name(), XML_ONSTOP) == 0) {
                 parseList(currentNode, mGlobalOptions.mOnStop);
             }
+            // <onVolumeUp>
+            else if (strcasecmp(currentNode.name(), XML_ONVOLUMEUP) == 0) {
+                parseList(currentNode, mGlobalOptions.mOnVolumeUp);
+            }
+            // <onVolumeDown>
+            else if (strcasecmp(currentNode.name(), XML_ONVOLUMEDOWN) == 0) {
+                parseList(currentNode, mGlobalOptions.mOnVolumeDown);
+            }
             // <onManualStart>
             else if (strcasecmp(currentNode.name(), XML_ONMANUALSTART) == 0) {
                 parseList(currentNode, mGlobalOptions.mOnManualStart);
@@ -506,6 +515,10 @@ void cConfigFileParser::parseGlobal(const pugi::xml_node node)
             // <onSwitchToTV>
             else if (strcasecmp(currentNode.name(), XML_ONSWITCHTOTV) == 0) {
                 parseList(currentNode, mGlobalOptions.mOnSwitchToTV);
+            }
+            // <audioDevice>
+            else if (strcasecmp(currentNode.name(), XML_AUDIODEVICE) == 0) {
+                getDevice(currentNode.text().as_string(""), mGlobalOptions.mAudioDevice, getLineNumber(currentNode.offset_debug()));
             }
             // <onSwitchToRadio>
             else if (strcasecmp(currentNode.name(), XML_ONSWITCHTORADIO) == 0) {
