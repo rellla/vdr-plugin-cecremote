@@ -64,6 +64,7 @@ public:
     deviceTypeList mDeviceTypes;
     std::string mCECKeymap;
     std::string mVDRKeymap;
+    std::string mGLOBALKeymap;
     bool mShutdownOnStandby;
     bool mPowerOffOnStandby;
     bool mRTCDetect;
@@ -199,6 +200,8 @@ private:
     void parseVDRKeymap(const pugi::xml_node node, cKeyMaps &keymaps);
     // parse elements between <ceckeymap>
     void parseCECKeymap(const pugi::xml_node node, cKeyMaps &keymaps);
+    // parse elements between <globalkeymap>
+    void parseGLOBALKeymap(const pugi::xml_node node, cKeyMaps &keymaps);
     // parse elements between <global>
     void parseGlobal(const pugi::xml_node node);
     // parse elements between <menu>
@@ -216,6 +219,7 @@ private:
     static const char *XML_MENU;
     static const char *XML_CECKEYMAP;
     static const char *XML_VDRKEYMAP;
+    static const char *XML_GLOBALKEYMAP;
     static const char *XML_ONSTART;
     static const char *XML_ONSTOP;
     static const char *XML_ONPOWERON;
@@ -229,6 +233,7 @@ private:
     static const char *XML_FILE;
     static const char *XML_CEC;
     static const char *XML_VDR;
+    static const char *XML_GLOBALVDR;
     static const char *XML_POWERON;
     static const char *XML_POWEROFF;
     static const char *XML_MAKEACTIVE;

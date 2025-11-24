@@ -21,7 +21,7 @@ cCECControl::cCECControl(const cCECMenu &menuitem, cPluginCecremote *plugin) :
 {
     mPlugin = plugin;
     mMenuItem = menuitem;
-    mPlugin->mKeyMaps.SetActiveKeymaps(menuitem.mVDRKeymap, menuitem.mCECKeymap);
+    mPlugin->mKeyMaps.SetActiveKeymaps(menuitem.mVDRKeymap, menuitem.mCECKeymap, "default");
     mPlugin->PushCmdQueue(mMenuItem.mOnStart);
 }
 

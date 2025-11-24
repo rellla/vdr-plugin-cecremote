@@ -37,34 +37,41 @@ typedef cCECList::const_iterator cCECListIterator;
 
 class cKeyMaps {
 private:
-    eKeys mDefaultKeyMap[CEC_USER_CONTROL_CODE_MAX+1][2];
+    eKeys mDefaultKeyMap[CEC_USER_CONTROL_CODE_MAX+1][3];
     const char *mCECKeyNames[CEC_USER_CONTROL_CODE_MAX+1];
 
     std::map<std::string, cVDRKeyMap> mVDRKeyMap;
     std::map<std::string, cKeyMap> mCECKeyMap;
+    std::map<std::string, cVDRKeyMap> mGLOBALKeyMap;
     cVDRKeyMap mActiveVdrKeyMap;
     cKeyMap mActiveCecKeyMap;
+    cVDRKeyMap mActiveGlobalKeyMap;
 
     cec_user_control_code getFirstCEC(eKeys key);
 public:
     cKeyMaps();
     void InitVDRKeyFromDefault(std::string id);
     void InitCECKeyFromDefault(std::string id);
+    void InitGLOBALKeyFromDefault(std::string id);
     void ClearCECKey(std::string id, cec_user_control_code k);
     void ClearVDRKey(std::string id, eKeys k);
+    void ClearGLOBALKey(std::string id, eKeys k);
     void AddCECKey(std::string id, cec_user_control_code k, eKeys c);
     void AddVDRKey(std::string id, eKeys k, cec_user_control_code c);
+    void AddGLOBALKey(std::string id, eKeys k, cec_user_control_code c);
     cKeyList CECtoVDRKey(cec_user_control_code code);
     cCECList VDRtoCECKey(eKeys key);
     cec_user_control_code StringToCEC(const std::string &s);
     void SetActiveKeymaps(const std::string &vdrkeymapid,
-                          const std::string &ceckeymapid);
+                          const std::string &ceckeymapid,
+                          const std::string &globalkeymapid);
 
     // Functions to dump information via SVDRP.
     cString ListKeymaps();
     cString ListKeycodes();
     cString ListCECKeyMap(const std::string &id);
     cString ListVDRKeyMap(const std::string &id);
+    cString ListGLOBALKeyMap(const std::string &id);
 
     static const char *DEFAULTKEYMAP;
 };

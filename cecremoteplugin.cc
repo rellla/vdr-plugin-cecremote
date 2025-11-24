@@ -234,6 +234,7 @@ const char **cPluginCecremote::SVDRPHelpPages(void)
             "KEYM\nList available key map\n",
             "VDRK [id]\nDisplay VDR->CEC key map with id\n",
             "CECK [id]\nDisplay CEC->VDR key map with id\n",
+            "GLOK [id]\nDisplay Global VDR -> CEC key map with id\n",
             "DISC\nDisconnect CEC",
             "CONN\nConnect CEC",
             "STAT\nPlugin status",
@@ -273,6 +274,14 @@ cString cPluginCecremote::SVDRPCommand(const char *Command, const char *Option, 
         string s = Option;
         return mKeyMaps.ListCECKeyMap(s);
     }
+    else if (strcasecmp(Command, "GLOK") == 0) {
+        if (Option == NULL) {
+            ReplyCode = 901;
+            return "Error: Keymap ID required";
+        }
+        string s = Option;
+        return mKeyMaps.ListGLOBALKeyMap(s);
+    }
     else if (strcasecmp(Command, "DISC") == 0) {
         cCmd cmd(CEC_DISCONNECT);
         mCECRemote->PushWaitCmd(cmd);
@@ -294,7 +303,8 @@ cString cPluginCecremote::SVDRPCommand(const char *Command, const char *Option, 
 void cPluginCecremote::SetDefaultKeymaps()
 {
     mKeyMaps.SetActiveKeymaps(mConfigFileParser.mGlobalOptions.mVDRKeymap,
-                              mConfigFileParser.mGlobalOptions.mCECKeymap);
+                              mConfigFileParser.mGlobalOptions.mCECKeymap,
+                              mConfigFileParser.mGlobalOptions.mGLOBALKeymap);
 }
 
 cString cPluginCecremote::getStatus(void)

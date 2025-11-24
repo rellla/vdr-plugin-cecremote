@@ -30,6 +30,7 @@ const char *cConfigFileParser::XML_GLOBAL = "global";
 const char *cConfigFileParser::XML_MENU = "menu";
 const char *cConfigFileParser::XML_CECKEYMAP = "ceckeymap";
 const char *cConfigFileParser::XML_VDRKEYMAP = "vdrkeymap";
+const char *cConfigFileParser::XML_GLOBALKEYMAP = "globalkeymap";
 const char *cConfigFileParser::XML_ID = "id";
 const char *cConfigFileParser::XML_KEY = "key";
 const char *cConfigFileParser::XML_CODE = "code";
@@ -39,6 +40,7 @@ const char *cConfigFileParser::XML_KEYMAPS = "keymaps";
 const char *cConfigFileParser::XML_FILE = "file";
 const char *cConfigFileParser::XML_CEC = "cec";
 const char *cConfigFileParser::XML_VDR = "vdr";
+const char *cConfigFileParser::XML_GLOBALVDR = "globalvdr";
 const char *cConfigFileParser::XML_POWERON = "poweron";
 const char *cConfigFileParser::XML_POWEROFF = "poweroff";
 const char *cConfigFileParser::XML_MAKEACTIVE = "makeactive";
@@ -552,9 +554,13 @@ void cConfigFileParser::parseGlobal(const pugi::xml_node node)
                 mGlobalOptions.mCECKeymap =
                         currentNode.attribute(XML_CEC).as_string(
                                 cKeyMaps::DEFAULTKEYMAP);
-                Dsyslog("Keymap VDR %s CEC %s",
+                mGlobalOptions.mGLOBALKeymap =
+                        currentNode.attribute(XML_GLOBALVDR).as_string(
+                                cKeyMaps::DEFAULTKEYMAP);
+                Dsyslog("Keymap VDR %s CEC %s GLOBAL %s",
                         mGlobalOptions.mVDRKeymap.c_str(),
-                        mGlobalOptions.mCECKeymap.c_str());
+                        mGlobalOptions.mCECKeymap.c_str(),
+                        mGlobalOptions.mGLOBALKeymap.c_str());
             } else if (strcasecmp(currentNode.name(), XML_HDMIPORT) == 0) {
                 if (!textToInt(currentNode.text().as_string("1000"),
                         mGlobalOptions.mHDMIPort)) {
@@ -682,6 +688,73 @@ void cConfigFileParser::parseVDRKeymap(const xml_node node, cKeyMaps &keymaps)
                                 getLineNumber(ceckeynode.offset_debug()), s);
                     }
                     keymaps.AddVDRKey(id, k, c);
+                }
+            }
+        }
+    }
+}
+
+/*
+ * parse elements between <globalkeymap>
+ */
+void cConfigFileParser::parseGLOBALKeymap(const xml_node node, cKeyMaps &keymaps)
+{
+    string id = node.attribute(XML_ID).as_string("");
+    if (id.empty()) {
+        string s = "Missing id for global keymap";
+        Esyslog(s.c_str());
+        throw cCECConfigException(getLineNumber(node.offset_debug()), s);
+    }
+
+    Dsyslog ("GLOBALKEYMAP %s\n", id.c_str());
+
+    keymaps.InitGLOBALKeyFromDefault(id);
+    for (xml_node currentNode = node.first_child(); currentNode;
+         currentNode = currentNode.next_sibling()) {
+
+        if (currentNode.type() == node_element)  // is element
+        {
+            if (strcasecmp(currentNode.name(), XML_KEY) != 0) {
+                string s = "Invalid node ";
+                s += currentNode.name();
+                Esyslog(s.c_str());
+                throw cCECConfigException(getLineNumber(node.offset_debug()), s);
+            }
+            string code = currentNode.attribute(XML_CODE).as_string("");
+            if (code.empty()) {
+                string s = "Missing code in global keymap";
+                Esyslog(s.c_str());
+                throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
+            }
+            eKeys k = cKey::FromString(code.c_str());
+            if (k == kNone) {
+                string s = "Unknown GLOBAL key code " + code;
+                Esyslog(s.c_str());
+                throw cCECConfigException(getLineNumber(currentNode.offset_debug()), s);
+            }
+            keymaps.ClearGLOBALKey(id, k);
+
+            // Parse cec key values
+            for (xml_node ceckeynode = currentNode.first_child(); ceckeynode;
+                    ceckeynode = ceckeynode.next_sibling()) {
+                if (ceckeynode.type() == node_element)  // is element
+                        {
+                    if (strcasecmp(ceckeynode.name(), XML_VALUE) != 0) {
+                        string s = "Invalid node ";
+                        s += ceckeynode.name();
+                        Esyslog(s.c_str());
+                        throw cCECConfigException(
+                                getLineNumber(ceckeynode.offset_debug()), s);
+                    }
+                    string ceckey = ceckeynode.text().as_string();
+                    cec_user_control_code c = keymaps.StringToCEC(ceckey);
+                    if (c == CEC_USER_CONTROL_CODE_UNKNOWN) {
+                        string s = "Unknown CEC key code " + ceckey;
+                        Esyslog(s.c_str());
+                        throw cCECConfigException(
+                                getLineNumber(ceckeynode.offset_debug()), s);
+                    }
+                    keymaps.AddGLOBALKey(id, k, c);
                 }
             }
         }
@@ -903,7 +976,8 @@ bool cConfigFileParser::Parse(const string &filename, cKeyMaps &keymaps) {
                     (strcasecmp(currentNode.name(), XML_GLOBAL) != 0) ||
                     (strcasecmp(currentNode.name(), XML_MENU) != 0) ||
                     (strcasecmp(currentNode.name(), XML_CECKEYMAP) != 0) ||
-                    (strcasecmp(currentNode.name(), XML_VDRKEYMAP) != 0)
+                    (strcasecmp(currentNode.name(), XML_VDRKEYMAP) != 0) ||
+                    (strcasecmp(currentNode.name(), XML_GLOBALKEYMAP) != 0)
                )) {
                 Esyslog("Invalid Node %s", currentNode.name());
 
@@ -935,6 +1009,11 @@ bool cConfigFileParser::Parse(const string &filename, cKeyMaps &keymaps) {
         for (currentNode = elementRoot.child(XML_VDRKEYMAP); currentNode;
                 currentNode = currentNode.next_sibling(XML_VDRKEYMAP)) {
             parseVDRKeymap(currentNode, keymaps);
+        }
+        // Parse globalkeymaps
+        for (currentNode = elementRoot.child(XML_GLOBALKEYMAP); currentNode;
+                currentNode = currentNode.next_sibling(XML_GLOBALKEYMAP)) {
+            parseGLOBALKeymap(currentNode, keymaps);
         }
         // Parse device
         for (currentNode = elementRoot.child(XML_DEVICE); currentNode;
